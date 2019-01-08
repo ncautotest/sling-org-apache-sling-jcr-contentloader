@@ -139,10 +139,8 @@ public class DefaultContentImporter extends BaseImportLoader implements ContentH
         logger.debug("import JCR XML: '{}'", name);
         boolean replace = (importOptions == null) ? false : importOptions.isOverwrite();
         final Node node = importJcrXml(parent, name, contentStream, replace);
-        if (node != null) {
-            if (importListener != null) {
-                importListener.onCreate(node.getPath());
-            }
+        if (node != null && importListener != null) {
+            importListener.onCreate(node.getPath());
         }
     }
 

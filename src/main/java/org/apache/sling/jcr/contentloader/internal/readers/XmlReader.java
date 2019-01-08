@@ -61,8 +61,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * This reader reads an xml file defining the content. The xml format should have this
- * format:
+ * This reader reads an xml file defining the content. The xml format should
+ * have this format:
  *
  * <pre>
  * &lt;node&gt;
@@ -93,24 +93,22 @@ import org.xmlpull.v1.XmlPullParserException;
  * &lt;/node&gt;
  * </pre>
  *
- * If you want to include a binary file in your loaded content, you may specify it using a
- * {@link org.apache.sling.jcr.contentloader.internal.readers.XmlReader.FileDescription} <code>&lt;nt:file&gt;</code> element.
+ * If you want to include a binary file in your loaded content, you may specify
+ * it using a
+ * {@link org.apache.sling.jcr.contentloader.internal.readers.XmlReader.FileDescription}
+ * <code>&lt;nt:file&gt;</code> element.
  */
-@Component(service = ContentReader.class,
-property = {
-    Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
-    ContentReader.PROPERTY_EXTENSIONS + "=xml",
-    ContentReader.PROPERTY_TYPES + "=application/xml",
-    ContentReader.PROPERTY_TYPES + "=text/xml"
-})
+@Component(service = ContentReader.class, property = { Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
+        ContentReader.PROPERTY_EXTENSIONS + "=xml", ContentReader.PROPERTY_TYPES + "=application/xml",
+        ContentReader.PROPERTY_TYPES + "=text/xml" })
 public class XmlReader implements ContentReader {
 
     /*
      * <node> <primaryNodeType>type</primaryNodeType> <mixinNodeTypes>
-     * <mixinNodeType>mixtype1</mixinNodeType> <mixinNodeType>mixtype2</mixinNodeType>
-     * </mixinNodeTypes> <properties> <property> <name>propName</name>
-     * <value>propValue</value> <type>propType</type> </property> <!-- more
-     * --> </properties> </node>
+     * <mixinNodeType>mixtype1</mixinNodeType>
+     * <mixinNodeType>mixtype2</mixinNodeType> </mixinNodeTypes> <properties>
+     * <property> <name>propName</name> <value>propValue</value>
+     * <type>propType</type> </property> <!-- more --> </properties> </node>
      */
 
     /** default log */
@@ -154,34 +152,36 @@ public class XmlReader implements ContentReader {
 
     // ---------- XML content access -------------------------------------------
 
-
     /**
-     * @see org.apache.sling.jcr.contentloader.ContentReader#parse(URL, org.apache.sling.jcr.contentloader.ContentCreator)
+     * @see org.apache.sling.jcr.contentloader.ContentReader#parse(URL,
+     *      org.apache.sling.jcr.contentloader.ContentCreator)
      */
     @Override
     public synchronized void parse(final URL url, final ContentCreator creator)
-    throws IOException, RepositoryException {
-        BufferedInputStream bufferedInput = null;
-        try {
-            // We need to buffer input, so that we can reset the stream if we encounter an XSL stylesheet reference
-            bufferedInput = new BufferedInputStream(url.openStream());
+            throws IOException, RepositoryException {
+        
+        try (BufferedInputStream bufferedInput = new BufferedInputStream(url.openStream())) {
+            // We need to buffer input, so that we can reset the stream if we encounter an
+            // XSL stylesheet reference
             parseInternal(bufferedInput, creator, url);
         } catch (XmlPullParserException xppe) {
             throw (IOException) new IOException(xppe.getMessage()).initCause(xppe);
-        } finally {
-            closeStream(bufferedInput);
         }
     }
 
-    /* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.ContentReader#parse(java.io.InputStream, org.apache.sling.jcr.contentloader.ContentCreator)
-	 */
-	@Override
-    public void parse(InputStream ins, ContentCreator creator)
-			throws IOException, RepositoryException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.sling.jcr.contentloader.ContentReader#parse(java.io.InputStream,
+     * org.apache.sling.jcr.contentloader.ContentCreator)
+     */
+    @Override
+    public void parse(InputStream ins, ContentCreator creator) throws IOException, RepositoryException {
         BufferedInputStream bufferedInput = null;
         try {
-            // We need to buffer input, so that we can reset the stream if we encounter an XSL stylesheet reference
+            // We need to buffer input, so that we can reset the stream if we encounter an
+            // XSL stylesheet reference
             bufferedInput = new BufferedInputStream(ins);
             URL xmlLocation = null;
             parseInternal(bufferedInput, creator, xmlLocation);
@@ -190,15 +190,15 @@ public class XmlReader implements ContentReader {
         } finally {
             closeStream(bufferedInput);
         }
-	}
+    }
 
-	private void parseInternal(final InputStream bufferedInput,
-                               final ContentCreator creator,
-                               final URL xmlLocation)
-    throws XmlPullParserException, IOException, RepositoryException {
+    private void parseInternal(final InputStream bufferedInput, final ContentCreator creator, final URL xmlLocation)
+            throws XmlPullParserException, IOException, RepositoryException {
         final StringBuilder contentBuffer = new StringBuilder();
-        // Mark the beginning of the stream. We assume that if there's an XSL processing instruction,
-        // it will occur in the first gulp - which makes sense, as processing instructions must be
+        // Mark the beginning of the stream. We assume that if there's an XSL processing
+        // instruction,
+        // it will occur in the first gulp - which makes sense, as processing
+        // instructions must be
         // specified before the root element of an XML file.
         bufferedInput.mark(bufferedInput.available());
         // set the parser input, use null encoding to force detection with
@@ -213,17 +213,18 @@ public class XmlReader implements ContentReader {
         PropertyDescription currentProperty = null;
         String currentElement;
 
-
         int eventType = this.xmlParser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.PROCESSING_INSTRUCTION) {
                 ProcessingInstruction pi = new ProcessingInstruction(this.xmlParser.getText());
                 // Look for a reference to an XSL stylesheet
-                if (pi.getName().equals(XML_STYLESHEET_PROCESSING_INSTRUCTION) && xmlLocation != null ) {
-                    // Rewind the input stream to the beginning, so that it can be transformed with XSL
+                if (pi.getName().equals(XML_STYLESHEET_PROCESSING_INSTRUCTION) && xmlLocation != null) {
+                    // Rewind the input stream to the beginning, so that it can be transformed with
+                    // XSL
                     bufferedInput.reset();
                     // Pipe the XML input through the XSL transformer
-                    XslTransformerStream transformerStream = new XslTransformerStream(bufferedInput, pi.getAttribute(HREF_ATTRIBUTE), xmlLocation);
+                    XslTransformerStream transformerStream = new XslTransformerStream(bufferedInput,
+                            pi.getAttribute(HREF_ATTRIBUTE), xmlLocation);
                     // Start the transformer thread
                     transformerStream.startTransform();
                     // Re-run the XML parser, now with the transformed XML
@@ -243,11 +244,14 @@ public class XmlReader implements ContentReader {
                 } else if (ELEM_NODE.equals(currentElement)) {
                     currentNode = NodeDescription.create(currentNode, creator);
                     currentNode = NodeDescription.SHARED;
-                } else if (ELEM_FILE_NAME.equals(currentElement) && ELEM_FILE_NAMESPACE.equals(this.xmlParser.getNamespace())) {
+                } else if (ELEM_FILE_NAME.equals(currentElement)
+                        && ELEM_FILE_NAMESPACE.equals(this.xmlParser.getNamespace())) {
                     if (xmlLocation != null) {
                         int attributeCount = this.xmlParser.getAttributeCount();
                         if (attributeCount < 2 || attributeCount > 3) {
-                            throw new IOException("File element must have these attributes: url, mimeType and lastModified: " + xmlLocation);
+                            throw new IOException(
+                                    "File element must have these attributes: url, mimeType and lastModified: "
+                                            + xmlLocation);
                         }
                         try {
                             AttributeMap attributes = AttributeMap.getInstance();
@@ -284,20 +288,23 @@ public class XmlReader implements ContentReader {
                     }
 
                 } else if (ELEM_VALUE.equals(qName)) {
-                    if ( currentProperty == null ) {
-                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected " + ELEM_VALUE + " element in : " + xmlLocation);
+                    if (currentProperty == null) {
+                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected "
+                                + ELEM_VALUE + " element in : " + xmlLocation);
                     }
                     currentProperty.addValue(content);
 
                 } else if (ELEM_VALUES.equals(qName)) {
-                    if ( currentProperty == null ) {
-                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected " + ELEM_VALUE + " element in : " + xmlLocation);
+                    if (currentProperty == null) {
+                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected "
+                                + ELEM_VALUE + " element in : " + xmlLocation);
                     }
                     currentProperty.isMultiValue = true;
 
                 } else if (ELEM_TYPE.equals(qName)) {
-                    if ( currentProperty == null ) {
-                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected " + ELEM_VALUE + " element in : " + xmlLocation);
+                    if (currentProperty == null) {
+                        throw new IOException("XML file does not seem to contain valid content xml. Unexpected "
+                                + ELEM_VALUE + " element in : " + xmlLocation);
                     }
                     currentProperty.type = content;
 
@@ -306,14 +313,16 @@ public class XmlReader implements ContentReader {
                     creator.finishNode();
 
                 } else if (ELEM_PRIMARY_NODE_TYPE.equals(qName)) {
-                    if ( currentNode == null ) {
-                        throw new IOException("Element is not allowed at this location: " + qName + " in " + xmlLocation);
+                    if (currentNode == null) {
+                        throw new IOException(
+                                "Element is not allowed at this location: " + qName + " in " + xmlLocation);
                     }
                     currentNode.primaryNodeType = content;
 
                 } else if (ELEM_MIXIN_NODE_TYPE.equals(qName)) {
-                    if ( currentNode == null ) {
-                        throw new IOException("Element is not allowed at this location: " + qName + " in " + xmlLocation);
+                    if (currentNode == null) {
+                        throw new IOException(
+                                "Element is not allowed at this location: " + qName + " in " + xmlLocation);
                     }
                     currentNode.addMixinType(content);
                 }
@@ -326,8 +335,9 @@ public class XmlReader implements ContentReader {
     }
 
     /**
-     * Takes an XML input stream and pipes it through an XSL transformer.
-     * Callers should call {@link #startTransform} before trying to use the stream, or the caller will wait indefinately for input.
+     * Takes an XML input stream and pipes it through an XSL transformer. Callers
+     * should call {@link #startTransform} before trying to use the stream, or the
+     * caller will wait indefinately for input.
      */
     private static class XslTransformerStream extends PipedInputStream {
         private InputStream inputXml;
@@ -338,8 +348,11 @@ public class XmlReader implements ContentReader {
 
         /**
          * Instantiate the XslTransformerStream.
-         * @param inputXml XML to be transformed.
-         * @param xslHref Path to an XSL stylesheet
+         * 
+         * @param inputXml
+         *            XML to be transformed.
+         * @param xslHref
+         *            Path to an XSL stylesheet
          * @param xmlLocation
          * @throws IOException
          */
@@ -353,48 +366,48 @@ public class XmlReader implements ContentReader {
         }
 
         /**
-         * Starts the XSL transformer in a new thread, so that it can pipe its output to our <code>PipedInputStream</code>.
+         * Starts the XSL transformer in a new thread, so that it can pipe its output to
+         * our <code>PipedInputStream</code>.
+         * 
          * @throws IOException
          */
         public void startTransform() throws IOException {
             final URL xslResource = new URL(xmlLocation, this.xslHref);
 
-/*
-            if (xslResource == null) {
-                throw new IOException("Could not find " + xslHref);
-            }
-*/
+            /*
+             * if (xslResource == null) { throw new IOException("Could not find " +
+             * xslHref); }
+             */
 
-            transformerThread = new Thread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Source xml = new StreamSource(inputXml);
-                                Source xsl = new StreamSource(xslResource.toExternalForm());
-                                final StreamResult streamResult;
-                                final Templates templates = TransformerFactory.newInstance().newTemplates(xsl);
-                                streamResult = new StreamResult(pipedOut);
-                                templates.newTransformer().transform(xml, streamResult);
-                            } catch (TransformerConfigurationException e) {
-                                throw new RuntimeException("Error initializing XSL transformer", e);
-                            } catch (TransformerException e) {
-                                throw new RuntimeException("Error transforming", e);
-                            } finally {
-                                closeStream(pipedOut);
-                            }
-                        }
+            transformerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Source xml = new StreamSource(inputXml);
+                        Source xsl = new StreamSource(xslResource.toExternalForm());
+                        final StreamResult streamResult;
+                        final Templates templates = TransformerFactory.newInstance().newTemplates(xsl);
+                        streamResult = new StreamResult(pipedOut);
+                        templates.newTransformer().transform(xml, streamResult);
+                    } catch (TransformerConfigurationException e) {
+                        throw new RuntimeException("Error initializing XSL transformer", e);
+                    } catch (TransformerException e) {
+                        throw new RuntimeException("Error transforming", e);
+                    } finally {
+                        closeStream(pipedOut);
                     }
-                    , "XslTransformerThread");
+                }
+            }, "XslTransformerThread");
             transformerThread.start();
         }
-
 
     }
 
     /**
      * Utility function to close a stream if it is still open.
-     * @param closeable Stream to close
+     * 
+     * @param closeable
+     *            Stream to close
      */
     private static void closeStream(Closeable closeable) {
         if (closeable != null) {
@@ -413,9 +426,8 @@ public class XmlReader implements ContentReader {
         public String primaryNodeType;
         public List<String> mixinTypes;
 
-        public static NodeDescription create(NodeDescription desc, ContentCreator creator)
-                throws RepositoryException {
-            if ( desc != null ) {
+        public static NodeDescription create(NodeDescription desc, ContentCreator creator) throws RepositoryException {
+            if (desc != null) {
                 creator.createNode(desc.name, desc.primaryNodeType, desc.getMixinTypes());
                 desc.clear();
             }
@@ -423,15 +435,14 @@ public class XmlReader implements ContentReader {
         }
 
         public void addMixinType(String v) {
-            if ( this.mixinTypes == null ) {
+            if (this.mixinTypes == null) {
                 this.mixinTypes = new ArrayList<>();
             }
             this.mixinTypes.add(v);
         }
 
-
         private String[] getMixinTypes() {
-            if ( this.mixinTypes == null || this.mixinTypes.size() == 0) {
+            if (this.mixinTypes == null || this.mixinTypes.size() == 0) {
                 return null;
             }
             return mixinTypes.toArray(new String[this.mixinTypes.size()]);
@@ -440,7 +451,7 @@ public class XmlReader implements ContentReader {
         private void clear() {
             this.name = null;
             this.primaryNodeType = null;
-            if ( this.mixinTypes != null ) {
+            if (this.mixinTypes != null) {
                 this.mixinTypes.clear();
             }
         }
@@ -453,11 +464,11 @@ public class XmlReader implements ContentReader {
         public static PropertyDescription create(PropertyDescription desc, ContentCreator creator)
                 throws RepositoryException {
             int type = (desc.type == null ? PropertyType.STRING : PropertyType.valueFromName(desc.type));
-            if ( desc.isMultiValue ) {
+            if (desc.isMultiValue) {
                 creator.createProperty(desc.name, type, desc.getPropertyValues());
             } else {
                 String value = null;
-                if ( desc.values != null && desc.values.size() == 1 ) {
+                if (desc.values != null && desc.values.size() == 1) {
                     value = desc.values.get(0);
                 }
                 creator.createProperty(desc.name, type, value);
@@ -472,14 +483,14 @@ public class XmlReader implements ContentReader {
         public boolean isMultiValue;
 
         public void addValue(String v) {
-            if ( this.values == null ) {
+            if (this.values == null) {
                 this.values = new ArrayList<>();
             }
             this.values.add(v);
         }
 
         private String[] getPropertyValues() {
-            if ( this.values == null || this.values.size() == 0) {
+            if (this.values == null || this.values.size() == 0) {
                 return null;
             }
             return values.toArray(new String[this.values.size()]);
@@ -488,7 +499,7 @@ public class XmlReader implements ContentReader {
         private void clear() {
             this.name = null;
             this.type = null;
-            if ( this.values != null ) {
+            if (this.values != null) {
                 this.values.clear();
             }
             this.isMultiValue = false;
@@ -497,8 +508,10 @@ public class XmlReader implements ContentReader {
 
     /**
      * Represents an XML processing instruction.<br />
-     * A processing instruction like <code>&lt;?xml-stylesheet href="stylesheet.xsl" type="text/css"?&gt</code>
-     * will have <code>name</code> == <code>"xml-stylesheet"</code> and two attributes: <code>href</code> and <code>type</code>.
+     * A processing instruction like
+     * <code>&lt;?xml-stylesheet href="stylesheet.xsl" type="text/css"?&gt</code>
+     * will have <code>name</code> == <code>"xml-stylesheet"</code> and two
+     * attributes: <code>href</code> and <code>type</code>.
      */
     private static class ProcessingInstruction {
 
@@ -531,15 +544,21 @@ public class XmlReader implements ContentReader {
     }
 
     /**
-     * Represents a reference to a file that is to be loaded into the repository. The file is referenced by an
-     * XML element named <code>&lt;nt:file&gt;</code>, with the attributes <code>src</code>,
-     * <code>mimeType</code> and <code>lastModified</code>. <br><br>Example:
+     * Represents a reference to a file that is to be loaded into the repository.
+     * The file is referenced by an XML element named <code>&lt;nt:file&gt;</code>,
+     * with the attributes <code>src</code>, <code>mimeType</code> and
+     * <code>lastModified</code>. <br>
+     * <br>
+     * Example:
+     * 
      * <pre>
      * &lt;nt:file src="../../image.png" mimeType="image/png" lastModified="1977-06-01T07:00:00+0100" /&gt;
      * </pre>
-     * The date format for <code>lastModified</code> is <code>yyyy-MM-dd'T'HH:mm:ssZ</code>.
-     * The <code>lastModified</code> attribute is optional. If missing, the last modified date reported by the
-     * filesystem will be used.
+     * 
+     * The date format for <code>lastModified</code> is
+     * <code>yyyy-MM-dd'T'HH:mm:ssZ</code>. The <code>lastModified</code> attribute
+     * is optional. If missing, the last modified date reported by the filesystem
+     * will be used.
      */
     protected static final class FileDescription {
 
@@ -575,17 +594,17 @@ public class XmlReader implements ContentReader {
         public void create(ContentCreator creator) throws RepositoryException, IOException {
             String[] parts = url.getPath().split("/");
             String name = parts[parts.length - 1];
-            InputStream stream = url.openStream();
-            if (lastModified == null) {
-                try {
-                    lastModified = new File(url.toURI()).lastModified();
-                } catch (Throwable ignore) {
-                    // Could not get lastModified from file system, so we'll use current date
-                    lastModified = Calendar.getInstance().getTimeInMillis();
+            try (InputStream stream = url.openStream()) {
+                if (lastModified == null) {
+                    try {
+                        lastModified = new File(url.toURI()).lastModified();
+                    } catch (Exception ignore) {
+                        // Could not get lastModified from file system, so we'll use current date
+                        lastModified = Calendar.getInstance().getTimeInMillis();
+                    }
                 }
+                creator.createFileAndResourceNode(name, stream, mimeType, lastModified);
             }
-            creator.createFileAndResourceNode(name, stream, mimeType, lastModified);
-            closeStream(stream);
             creator.finishNode();
             creator.finishNode();
             this.clear();
@@ -619,17 +638,20 @@ public class XmlReader implements ContentReader {
      */
     protected static class AttributeMap extends HashMap<String, String> {
 
-		private static final long serialVersionUID = -6304058237706001104L;
-		private static final AttributeMap instance = new AttributeMap();
+        private static final long serialVersionUID = -6304058237706001104L;
+        private static final AttributeMap instance = new AttributeMap();
 
         public static AttributeMap getInstance() {
             return instance;
         }
 
         /**
-         * Puts values in an <code>AttributeMap</code> by extracting attributes from the <code>xmlParser</code>.
-         * @param xmlParser <code>xmlParser</code> to extract attributes from. The parser must be
-         * in {@link org.xmlpull.v1.XmlPullParser#START_TAG} state.
+         * Puts values in an <code>AttributeMap</code> by extracting attributes from the
+         * <code>xmlParser</code>.
+         * 
+         * @param xmlParser
+         *            <code>xmlParser</code> to extract attributes from. The parser must
+         *            be in {@link org.xmlpull.v1.XmlPullParser#START_TAG} state.
          */
         public void setValues(KXmlParser xmlParser) {
             final int count = xmlParser.getAttributeCount();

@@ -114,13 +114,13 @@ public class PathEntry extends ImportOptions {
     private long lastModified;
 
     public static Iterator<PathEntry> getContentPaths(final Bundle bundle) {
-        final List<PathEntry> entries = new ArrayList<PathEntry>();
-        String bundleLastModifiedStamp = (String) bundle.getHeaders().get("Bnd-LastModified");
+        final List<PathEntry> entries = new ArrayList<>();
+        String bundleLastModifiedStamp = bundle.getHeaders().get("Bnd-LastModified");
         long bundleLastModified = bundle.getLastModified(); // time last modified inside the container
         if ( bundleLastModifiedStamp != null ) {
             bundleLastModified = Math.min(bundleLastModified, Long.parseLong(bundleLastModifiedStamp));
         }
-        final String root = (String) bundle.getHeaders().get(CONTENT_HEADER);
+        final String root = bundle.getHeaders().get(CONTENT_HEADER);
         if (root != null) {
             final ManifestHeader header = ManifestHeader.parse(root);
             for (final ManifestHeader.Entry entry : header.getEntries()) {
@@ -129,7 +129,7 @@ public class PathEntry extends ImportOptions {
             }
         }
 
-        if (entries.size() == 0) {
+        if (entries.isEmpty()) {
             return null;
         }
         return entries.iterator();
@@ -190,7 +190,7 @@ public class PathEntry extends ImportOptions {
         }
 
         // expand directive
-        this.ignoreContentReaders = new ArrayList<String>();
+        this.ignoreContentReaders = new ArrayList<>();
         final String expandValue = entry.getDirectiveValue(IGNORE_CONTENT_READERS_DIRECTIVE);
         if ( expandValue != null && expandValue.length() > 0 ) {
             final StringTokenizer st = new StringTokenizer(expandValue, ",");

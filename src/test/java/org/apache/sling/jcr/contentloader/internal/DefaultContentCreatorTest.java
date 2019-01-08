@@ -262,7 +262,7 @@ public class DefaultContentCreatorTest {
     @Test
     public void createNodeWithoutProvidedNames() throws RepositoryException, NoSuchFieldException {
         @SuppressWarnings("unchecked")
-		Stack<Node> nodesStack = (Stack<Node>)PrivateAccessor.getField(contentCreator, "parentNodeStack");
+		Deque<Node> nodesStack = (Deque<Node>)PrivateAccessor.getField(contentCreator, "parentNodeStack");
 
         contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false),
                 new HashMap<String, ContentReader>(), null, null);

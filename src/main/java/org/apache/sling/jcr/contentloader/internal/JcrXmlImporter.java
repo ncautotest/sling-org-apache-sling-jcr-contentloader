@@ -37,9 +37,6 @@ public class JcrXmlImporter {
 
     private final Logger logger = LoggerFactory.getLogger(JcrXmlImporter.class);
 
-    public JcrXmlImporter() {
-    }
-
     /**
      * Import the XML file as JCR system or document view import. If the XML
      * file is not a valid system or document view export/import file,
@@ -88,11 +85,11 @@ public class JcrXmlImporter {
             return (parent.hasNode(nodeName)) ? parent.getNode(nodeName) : null;
         } catch (InvalidSerializedDataException isde) {
             // the xml might not be System or Document View export, fall back to old-style XML reading
-            logger.info("importJcrXml: XML does not seem to be system or document view; cause: {}", isde.toString());
+            logger.info("importJcrXml: XML does not seem to be system or document view; cause: {}", isde);
             return null;
         } catch (RepositoryException re) {
             // any other repository related issue...
-            logger.info("importJcrXml: Repository issue loading XML; cause: {}", re.toString());
+            logger.info("importJcrXml: Repository issue loading XML; cause: {}", re);
             return null;
         }
     }

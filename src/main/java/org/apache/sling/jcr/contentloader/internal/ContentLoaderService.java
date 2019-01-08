@@ -148,7 +148,7 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
                     final boolean isUpdate;
                     isUpdate = this.updatedBundles.remove(bundle.getSymbolicName());
                     bundleContentLoader.registerBundle(session, bundle, isUpdate);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     log.error(
                         "bundleChanged: Problem loading initial content of bundle "
                             + bundle.getSymbolicName() + " ("
@@ -166,7 +166,7 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
                 try {
                     session = this.getSession();
                     bundleContentLoader.unregisterBundle(session, bundle);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     log.error(
                         "bundleChanged: Problem unloading initial content of bundle "
                             + bundle.getSymbolicName() + " ("
@@ -175,6 +175,7 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
                     this.ungetSession(session);
                 }
                 break;
+            default:
         }
     }
 
@@ -237,21 +238,9 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
             Bundle[] bundles = bundleContext.getBundles();
             for (Bundle bundle : bundles) {
                 if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-
                     // load content for bundles which are neither INSTALLED nor
                     // UNINSTALLED
-                    try {
-                        bundleContentLoader.registerBundle(session, bundle, false);
-                    } catch (Throwable t) {
-                        log.error(
-                            "Problem loading initial content of bundle "
-                                + bundle.getSymbolicName() + " ("
-                                + bundle.getBundleId() + ")", t);
-                    } finally {
-                        if ( session.hasPendingChanges() ) {
-                            session.refresh(false);
-                        }
-                    }
+                    loadBundle(bundle, session);
                 } else {
                     ignored++;
                 }
@@ -263,11 +252,26 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
                     bundles.length, ignored
                     );
 
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("activate: Problem while loading initial content and"
                 + " registering mappings for existing bundles", t);
         } finally {
             this.ungetSession(session);
+        }
+    }
+    
+    private void loadBundle(Bundle bundle, Session session) throws RepositoryException {
+        try {
+            bundleContentLoader.registerBundle(session, bundle, false);
+        } catch (Exception t) {
+            log.error(
+                "Problem loading initial content of bundle "
+                    + bundle.getSymbolicName() + " ("
+                    + bundle.getBundleId() + ")", t);
+        } finally {
+            if ( session.hasPendingChanges() ) {
+                session.refresh(false);
+            }
         }
     }
 
@@ -313,7 +317,7 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
         if ( session != null ) {
             try {
                 session.logout();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 log.error("Unable to log out of session: " + t.getMessage(), t);
             }
         }
@@ -395,7 +399,7 @@ public class ContentLoaderService implements SynchronousBundleListener, BundleHe
             bcNode.setProperty(PROPERTY_CONTENT_LOADED_BY, this.slingId);
             bcNode.setProperty(PROPERTY_CONTENT_UNLOADED_AT, (String)null);
             bcNode.setProperty(PROPERTY_CONTENT_UNLOADED_BY, (String)null);
-            if ( createdNodes != null && createdNodes.size() > 0 ) {
+            if ( createdNodes != null && !createdNodes.isEmpty() ) {
                 bcNode.setProperty(PROPERTY_UNINSTALL_PATHS, createdNodes.toArray(new String[createdNodes.size()]));
             }
             session.save();

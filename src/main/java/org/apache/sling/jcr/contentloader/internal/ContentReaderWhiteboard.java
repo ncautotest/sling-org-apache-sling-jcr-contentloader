@@ -63,7 +63,7 @@ public class ContentReaderWhiteboard {
         }
     }
 
-    protected void unbindContentReader(final ContentReader operation, final Map<String, Object> properties) {
+    protected void unbindContentReader(final Map<String, Object> properties) {
         final String[] extensions = PropertiesUtil.toStringArray(properties.get(ContentReader.PROPERTY_EXTENSIONS));
         final String[] types = PropertiesUtil.toStringArray(properties.get(ContentReader.PROPERTY_TYPES));
         if (readersByExtension != null && extensions != null) {

@@ -64,9 +64,8 @@ public class ZipReader implements ContentReader {
 	@Override
     public void parse(InputStream ins, ContentCreator creator)
 			throws IOException, RepositoryException {
-        try {
+        try ( ZipInputStream zis = new ZipInputStream(ins)) {
             creator.createNode(null, NT_FOLDER, null);
-            final ZipInputStream zis = new ZipInputStream(ins);
             ZipEntry entry;
             do {
                 entry = zis.getNextEntry();
@@ -89,13 +88,6 @@ public class ZipReader implements ContentReader {
 
             } while ( entry != null );
             creator.finishNode();
-        } finally {
-            if (ins != null) {
-                try {
-                    ins.close();
-                } catch (IOException ignore) {
-                }
-            }
         }
 	}
 

@@ -65,7 +65,7 @@ public class BundleContentLoader extends BaseImportLoader {
     public BundleContentLoader(BundleHelper bundleHelper, ContentReaderWhiteboard contentReaderWhiteboard) {
         super(contentReaderWhiteboard);
         this.bundleHelper = bundleHelper;
-        this.delayedBundles = new LinkedList<Bundle>();
+        this.delayedBundles = new LinkedList<>();
     }
 
     public void dispose() {
@@ -83,7 +83,7 @@ public class BundleContentLoader extends BaseImportLoader {
      * @param bundle
      * @throws RepositoryException
      */
-    public void registerBundle(final Session metadataSession, final Bundle bundle, final boolean isUpdate) throws RepositoryException {
+    public void registerBundle(final Session metadataSession, final Bundle bundle, final boolean isUpdate) {
 
         // if this is an update, we have to uninstall the old content first
         if (isUpdate) {
@@ -136,11 +136,8 @@ public class BundleContentLoader extends BaseImportLoader {
                 final boolean contentAlreadyLoaded = ((Boolean) bundleContentInfo.get(ContentLoaderService.PROPERTY_CONTENT_LOADED)).booleanValue();
                 boolean isBundleUpdated = false;
                 Calendar lastLoadedAt = (Calendar) bundleContentInfo.get(ContentLoaderService.PROPERTY_CONTENT_LOADED_AT);
-                if (lastLoadedAt != null) {
-                    // this assumes that the bundle has been installed or updated after the content has been loaded
-                    if (lastLoadedAt.getTimeInMillis() < bundle.getLastModified()) {
-                        isBundleUpdated = true;
-                    }
+                if (lastLoadedAt != null && lastLoadedAt.getTimeInMillis() < bundle.getLastModified()) {
+                    isBundleUpdated = true;
                 }
                 if (!isUpdate && !isBundleUpdated && contentAlreadyLoaded) {
                     log.info("Content of bundle already loaded {}.", bundle.getSymbolicName());
@@ -210,8 +207,8 @@ public class BundleContentLoader extends BaseImportLoader {
      */
     private List<String> installContent(final Session defaultSession, final Bundle bundle, final Iterator<PathEntry> pathIter, final boolean contentAlreadyLoaded) throws RepositoryException {
 
-        final List<String> createdNodes = new ArrayList<String>();
-        final Map<String, Session> createdSessions = new HashMap<String, Session>();
+        final List<String> createdNodes = new ArrayList<>();
+        final Map<String, Session> createdSessions = new HashMap<>();
 
         log.debug("Installing initial content from bundle {}", bundle.getSymbolicName());
         final DefaultContentCreator contentCreator = new DefaultContentCreator(this.bundleHelper);
@@ -307,7 +304,7 @@ public class BundleContentLoader extends BaseImportLoader {
         //  init content creator
         contentCreator.init(configuration, getContentReaders(), createdNodes, null);
 
-        final Map<String, Node> processedEntries = new HashMap<String, Node>();
+        final Map<String, Node> processedEntries = new HashMap<>();
 
         Enumeration<String> entries = bundle.getEntryPaths(path);
         if (entries == null) {
@@ -486,7 +483,7 @@ public class BundleContentLoader extends BaseImportLoader {
             return contentCreator.getCreatedRootNode();
         } catch (RepositoryException re) {
             throw re;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RepositoryException(t.getMessage(), t);
         } finally {
             IOUtils.closeQuietly(contentStream);
@@ -529,7 +526,7 @@ public class BundleContentLoader extends BaseImportLoader {
     private void createFile(PathEntry configuration, Node parent, URL source, List<String> createdNodes, final DefaultContentCreator contentCreator) throws IOException, RepositoryException {
 
         final String srcPath = source.getPath();
-        int pos = srcPath.lastIndexOf("/");
+        int pos = srcPath.lastIndexOf('/');
         final String name = getName(source.getPath());
         final String path;
         if (pos == -1) {
@@ -615,7 +612,7 @@ public class BundleContentLoader extends BaseImportLoader {
 
     private void uninstallContent(final Session defaultSession, final Bundle bundle, final String[] uninstallPaths) {
 
-        final Map<String, Session> createdSessions = new HashMap<String, Session>();
+        final Map<String, Session> createdSessions = new HashMap<>();
 
         try {
             log.debug("Uninstalling initial content from bundle {}", bundle.getSymbolicName());
@@ -678,7 +675,7 @@ public class BundleContentLoader extends BaseImportLoader {
 
         public URL url;
 
-        public ContentReader contentReader;
+        private ContentReader contentReader;
 
     }
 
@@ -726,7 +723,7 @@ public class BundleContentLoader extends BaseImportLoader {
             return descriptor.url;
         } catch (RepositoryException re) {
             throw re;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RepositoryException(t.getMessage(), t);
         }
     }
