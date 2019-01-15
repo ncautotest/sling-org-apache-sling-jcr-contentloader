@@ -17,6 +17,6 @@
  * under the License.
  */
 
-@org.osgi.annotation.versioning.Version("0.3.0")
+@org.osgi.annotation.versioning.Version("0.4.0")
 package org.apache.sling.jcr.contentloader;
 

@@ -23,7 +23,7 @@ import java.util.Map;
 
 public final class ImportOptionsFactory {
     public static ImportOptions createImportOptions(final boolean isOverwrite, final boolean isPropertyOverwrite,
-            final boolean isAutoCheckout, final boolean isCheckin, final boolean isIgnoredImportProvider){
+            final boolean isAutoCheckout, final boolean isCheckin, final boolean isIgnoredImportProvider, final boolean isPropertyMerge){
         return new ImportOptions() {
             @Override
             public boolean isOverwrite() {
@@ -49,11 +49,16 @@ public final class ImportOptionsFactory {
             public boolean isIgnoredImportProvider(String extension) {
                 return isIgnoredImportProvider;
             }
+
+            @Override
+            public boolean isPropertyMerge() {
+                return isPropertyMerge;
+            }
         };
     }
 
     public static ImportOptions createImportOptsWithReaders(final boolean isOverwrite, final boolean isPropertyOverwrite,
-            final boolean isAutoCheckout, final boolean isCheckin, final Map<String, ContentReader> defaultContentReaders){
+            final boolean isAutoCheckout, final boolean isCheckin, final boolean isPropertyMerge, final Map<String, ContentReader> defaultContentReaders){
         return new ImportOptions() {
             @Override
             public boolean isOverwrite() {
@@ -78,6 +83,11 @@ public final class ImportOptionsFactory {
             @Override
             public boolean isIgnoredImportProvider(String extension) {
                 return defaultContentReaders.containsKey(extension);
+            }
+
+            @Override
+            public boolean isPropertyMerge() {
+                return isPropertyMerge;
             }
         };
     }

@@ -46,6 +46,12 @@ public class PathEntry extends ImportOptions {
      * should be overwritten or just initially added.
      */
     public static final String OVERWRITE_PROPERTIES_DIRECTIVE = "overwriteProperties";
+    
+    /**
+     * The overwriteProperties directive specifying if content properties 
+     * should be overwritten or just initially added.
+     */
+    public static final String MERGE_PROPERTIES_DIRECTIVE = "mergeProperties";
 
     /** The uninstall directive specifying if content should be uninstalled. */
     public static final String UNINSTALL_DIRECTIVE = "uninstall";
@@ -80,6 +86,8 @@ public class PathEntry extends ImportOptions {
      * @since 2.0.4
      */
     public static final String IGNORE_CONTENT_READERS_DIRECTIVE = "ignoreImportProviders";
+
+    private final boolean propertyMerge;
 
     /** The path for the initial content. */
     private final String path;
@@ -141,6 +149,14 @@ public class PathEntry extends ImportOptions {
 
         // check for directives
 
+        // merge directive
+        final String mergeProperties = entry.getDirectiveValue(MERGE_PROPERTIES_DIRECTIVE);
+        if (mergeProperties != null) {
+            this.propertyMerge = Boolean.valueOf(mergeProperties);
+        } else {
+            this.propertyMerge = false;
+        }
+        
         // overwrite directive
         final String overwriteValue = entry.getDirectiveValue(OVERWRITE_DIRECTIVE);
         if (overwriteValue != null) {
@@ -157,6 +173,7 @@ public class PathEntry extends ImportOptions {
             this.overwriteProperties = false;
         }
         
+ 
         // uninstall directive
         final String uninstallValue = entry.getDirectiveValue(UNINSTALL_DIRECTIVE);
         if (uninstallValue != null) {
@@ -217,42 +234,42 @@ public class PathEntry extends ImportOptions {
     }
 
     /* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isOverwrite()
-	 */
+     * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isOverwrite()
+     */
     public boolean isOverwrite() {
         return this.overwrite;
     }
 
     /* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.ImportOptions#isPropertyOverwrite()
-	 */
-	@Override
-	public boolean isPropertyOverwrite() {
-		return this.overwriteProperties;
-	}
+     * @see org.apache.sling.jcr.contentloader.ImportOptions#isPropertyOverwrite()
+     */
+    @Override
+    public boolean isPropertyOverwrite() {
+        return this.overwriteProperties;
+    }
 
-	public boolean isUninstall() {
+    public boolean isUninstall() {
         return this.uninstall;
     }
 
     /* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isCheckin()
-	 */
+     * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isCheckin()
+     */
     public boolean isCheckin() {
         return this.checkin;
     }
     
     /* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.ImportOptions#isAutoCheckout()
-	 */
-	@Override
-	public boolean isAutoCheckout() {
-		return this.autoCheckout;
-	}
+     * @see org.apache.sling.jcr.contentloader.ImportOptions#isAutoCheckout()
+     */
+    @Override
+    public boolean isAutoCheckout() {
+        return this.autoCheckout;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isIgnoredImportProvider(java.lang.String)
-	 */
+    /* (non-Javadoc)
+     * @see org.apache.sling.jcr.contentloader.internal.ImportOptions#isIgnoredImportProvider(java.lang.String)
+     */
     public boolean isIgnoredImportProvider(String extension) {
         if ( extension.startsWith(".") ) {
             extension = extension.substring(1);
@@ -266,5 +283,10 @@ public class PathEntry extends ImportOptions {
 
     public String getWorkspace() {
         return workspace;
+    }
+
+    @Override
+    public boolean isPropertyMerge() {
+        return this.propertyMerge;
     }
 }

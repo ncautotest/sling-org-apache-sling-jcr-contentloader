@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +42,8 @@ import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -118,6 +122,8 @@ public class DefaultContentCreator implements ContentCreator {
      * Optional listener to get notified about changes
      */
     private ContentImportListener importListener;
+
+    private Set<String> appliedSet = new LinkedHashSet<>();
 
     /**
      * A one time use seed to randomize the user location.
@@ -334,6 +340,7 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onCreate(node.getProperty(name).getPath());
             }
         }
+        appliedSet.add(name);
     }
 
     /**
@@ -393,6 +400,7 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onCreate(node.getProperty(name).getPath());
             }
         }
+        appliedSet.add(name);
     }
 
     protected Value createValue(final ValueFactory factory, Object value) throws RepositoryException {
@@ -441,6 +449,23 @@ public class DefaultContentCreator implements ContentCreator {
     public void finishNode() throws RepositoryException {
         final Node node = this.parentNodeStack.pop();
         // resolve REFERENCE property values pointing to this node
+        if (configuration.isPropertyMerge()) {
+        PropertyIterator it = node.getProperties();
+        Set<String> current =  new LinkedHashSet<>();
+        while(it.hasNext()) {
+            current.add(it.nextProperty().getName());
+        }
+        current.removeAll(appliedSet);
+        current.forEach(propertyName->{
+            try {
+                Property prop = node.getProperty(propertyName);
+                importListener.onDelete(prop.getPath());
+                prop.remove();
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        });
+        }
         resolveReferences(node);
     }
 
@@ -598,6 +623,7 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onModify(node.getProperty(name).getPath());
             }
         }
+        appliedSet.add(name);
     }
 
     private void createProperty(String name, Object[] values, boolean overwriteExisting) throws RepositoryException {
@@ -626,6 +652,7 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onModify(node.getProperty(name).getPath());
             }
         }
+        appliedSet.add(name);
     }
 
     /**

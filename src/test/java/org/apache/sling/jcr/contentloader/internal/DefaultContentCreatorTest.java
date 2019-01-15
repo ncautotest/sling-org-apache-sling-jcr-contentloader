@@ -56,7 +56,7 @@ public class DefaultContentCreatorTest {
         final SlingRepository repo = RepositoryProvider.instance().getRepository();
         session = repo.loginAdministrative(null);
         contentCreator = new DefaultContentCreator(null);
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         parentNode = session.getRootNode().addNode(getClass().getSimpleName()).addNode(uniqueId());
     }
@@ -74,7 +74,7 @@ public class DefaultContentCreatorTest {
     public void willRewriteUndefinedPropertyType() throws RepositoryException {
         parentNode = mockery.mock(Node.class);
         prop = mockery.mock(Property.class);
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
 
         contentCreator.prepareParsing(parentNode, null);
@@ -91,7 +91,7 @@ public class DefaultContentCreatorTest {
     public void willNotRewriteUndefinedPropertyType() throws RepositoryException {
         parentNode = mockery.mock(Node.class);
         prop = mockery.mock(Property.class);
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
 
         contentCreator.prepareParsing(parentNode, null);
@@ -114,7 +114,7 @@ public class DefaultContentCreatorTest {
             oneOf(parentNode).getProperty(propertyName); will(returnValue(prop));
             oneOf(prop).isNew(); will(returnValue(false));
         }});
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
         //By calling this method we expect that it will returns on first if-statement
@@ -149,7 +149,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode,null);
         contentCreator.createProperty(propertyName, PropertyType.REFERENCE, propertyValue);
@@ -165,7 +165,7 @@ public class DefaultContentCreatorTest {
             oneOf(parentNode).hasProperty(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -184,7 +184,7 @@ public class DefaultContentCreatorTest {
             oneOf(parentNode).hasProperty(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -211,7 +211,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -236,7 +236,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -248,7 +248,7 @@ public class DefaultContentCreatorTest {
 
     @Test
     public void createNodeWithoutNameAndTwoInStack() throws RepositoryException {
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         //Making parentNodeStack.size() == 1
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
@@ -264,7 +264,7 @@ public class DefaultContentCreatorTest {
         @SuppressWarnings("unchecked")
 		Deque<Node> nodesStack = (Deque<Node>)PrivateAccessor.getField(contentCreator, "parentNodeStack");
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
 
         contentCreator.prepareParsing(parentNode, null);
@@ -286,7 +286,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, false, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, false, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
 
@@ -307,7 +307,7 @@ public class DefaultContentCreatorTest {
         @SuppressWarnings("unchecked")
 		final List<Node> versionables = (List<Node>) PrivateAccessor.getField(contentCreator, "versionables");
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, true, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, true, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
 
@@ -329,7 +329,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, false, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(true, false, true, false, false, false),
                 new HashMap<String, ContentReader>(), createdNodes, listener);
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
 
@@ -348,7 +348,7 @@ public class DefaultContentCreatorTest {
     public void propertyDoesntOverwritten() throws RepositoryException {
         final String newPropertyName = uniqueId();
         final String newPropertyValue = uniqueId();
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
 
@@ -373,7 +373,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, DEFAULT_NAME);
 
@@ -399,7 +399,7 @@ public class DefaultContentCreatorTest {
         }});
         parentNode.addMixin("mix:versionable");
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, true, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, true, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -423,7 +423,7 @@ public class DefaultContentCreatorTest {
             oneOf(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -437,7 +437,7 @@ public class DefaultContentCreatorTest {
     public void createOtherProperty() throws RepositoryException {
         final String propName = uniqueId();
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -461,7 +461,7 @@ public class DefaultContentCreatorTest {
             exactly(3).of(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -487,7 +487,7 @@ public class DefaultContentCreatorTest {
             exactly(2).of(listener).onCreate(with(any(String.class)));
         }});
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, listener);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -507,7 +507,7 @@ public class DefaultContentCreatorTest {
         final String propName = uniqueId();
         final String underTestNodeName = uniqueId();
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
 
@@ -523,7 +523,7 @@ public class DefaultContentCreatorTest {
         final String propName = uniqueId();
         final String underTestNodeName = uniqueId();
 
-        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false),
+        contentCreator.init(ImportOptionsFactory.createImportOptions(false, false, false, false, false, false),
                 new HashMap<String, ContentReader>(), null, null);
         contentCreator.prepareParsing(parentNode, null);
 
