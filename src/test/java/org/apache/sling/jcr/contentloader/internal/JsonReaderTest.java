@@ -50,328 +50,459 @@ public class JsonReaderTest {
         this.jsonReader = new JsonReader();
     }
 
-    @org.junit.Before public void setUp() throws Exception {
+    @org.junit.Before
+    public void setUp() throws Exception {
         setReader();
         this.creator = this.mockery.mock(ContentCreator.class);
         this.mySequence = this.mockery.sequence("my-sequence");
     }
 
-    @org.junit.After public void tearDown() throws Exception {
+    @org.junit.After
+    public void tearDown() throws Exception {
         this.jsonReader = null;
     }
 
-    @org.junit.Test public void testEmptyObject() throws Exception {
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testEmptyObject() throws Exception {
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse("");
     }
 
-    @org.junit.Test public void testEmpty() throws IOException, RepositoryException {
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testEmpty() throws IOException, RepositoryException {
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse("{}");
     }
 
-    @org.junit.Test public void testDefaultPrimaryNodeTypeWithSurroundWhitespace() throws Exception {
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testDefaultPrimaryNodeTypeWithSurroundWhitespace() throws Exception {
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         String json = "     {  }     ";
         this.parse(json);
     }
 
-    @org.junit.Test public void testDefaultPrimaryNodeTypeWithoutEnclosingBracesWithSurroundWhitespace() throws Exception {
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testDefaultPrimaryNodeTypeWithoutEnclosingBracesWithSurroundWhitespace() throws Exception {
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         String json = "             ";
         this.parse(json);
     }
 
-    @org.junit.Test public void testExplicitePrimaryNodeType() throws Exception {
+    @org.junit.Test
+    public void testExplicitePrimaryNodeType() throws Exception {
         final String type = "xyz:testType";
         String json = "{ \"jcr:primaryType\": \"" + type + "\" }";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, type, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, type, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testMixinNodeTypes1() throws Exception {
-        final String[] mixins = new String[]{ "xyz:mix1" };
+    @org.junit.Test
+    public void testMixinNodeTypes1() throws Exception {
+        final String[] mixins = new String[] { "xyz:mix1" };
         String json = "{ \"jcr:mixinTypes\": " + this.toJsonArray(mixins) + "}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, mixins); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, mixins);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testMixinNodeTypes2() throws Exception {
-        final String[] mixins = new String[]{ "xyz:mix1", "abc:mix2" };
+    @org.junit.Test
+    public void testMixinNodeTypes2() throws Exception {
+        final String[] mixins = new String[] { "xyz:mix1", "abc:mix2" };
         String json = "{ \"jcr:mixinTypes\": " + this.toJsonArray(mixins) + "}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, mixins); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, mixins);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesEmpty() throws Exception {
+    @org.junit.Test
+    public void testPropertiesEmpty() throws Exception {
         String json = "{ \"property\": \"\"}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("property", PropertyType.UNDEFINED, ""); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("property", PropertyType.UNDEFINED, "");
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesSingleValue() throws Exception {
+    @org.junit.Test
+    public void testPropertiesSingleValue() throws Exception {
         String json = "{ \"p1\": \"v1\"}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.UNDEFINED, "v1"); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.UNDEFINED, "v1");
+                inSequence(mySequence);
+
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesSingleDateValue() throws Exception {
+    @org.junit.Test
+    public void testPropertiesSingleDateValue() throws Exception {
         String json = "{ \"p1\": \"2009-09-24T16:32:57.948-07:00\"}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.DATE, "2009-09-24T16:32:57.948-07:00"); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.DATE, "2009-09-24T16:32:57.948-07:00");
+                inSequence(mySequence);
+
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesTwoSingleValue() throws Exception {
+    @org.junit.Test
+    public void testPropertiesTwoSingleValue() throws Exception {
         String json = "{ \"p1\": \"v1\", \"p2\": \"v2\"}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.UNDEFINED, "v1"); inSequence(mySequence);
-            allowing(creator).createProperty("p2", PropertyType.UNDEFINED, "v2"); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.UNDEFINED, "v1");
+                inSequence(mySequence);
+                allowing(creator).createProperty("p2", PropertyType.UNDEFINED, "v2");
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesMultiValue() throws Exception {
+    @org.junit.Test
+    public void testPropertiesMultiValue() throws Exception {
         String json = "{ \"p1\": [\"v1\"]}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.UNDEFINED, new String[] {"v1"}); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.UNDEFINED, new String[] { "v1" });
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesMultiDateValue() throws Exception {
+    @org.junit.Test
+    public void testPropertiesMultiDateValue() throws Exception {
         String json = "{ \"p1\": [\"2009-09-24T16:32:57.948-07:00\"]}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.DATE, new String[] {"2009-09-24T16:32:57.948-07:00"}); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.DATE,
+                        new String[] { "2009-09-24T16:32:57.948-07:00" });
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testPropertiesMultiValueEmpty() throws Exception {
+    @org.junit.Test
+    public void testPropertiesMultiValueEmpty() throws Exception {
         String json = "{ \"p1\": []}";
 
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createProperty("p1", PropertyType.STRING, new String[0]); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("p1", PropertyType.STRING, new String[0]);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testChild() throws Exception {
-        String json = "{ " +
-                      " \"c1\" : {}" +
-                      "}";
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createNode("c1", null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testChild() throws Exception {
+        String json = "{ " + " \"c1\" : {}" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createNode("c1", null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testChildWithMixin() throws Exception {
-        String json = "{ " +
-        " \"c1\" : {" +
-              "\"jcr:mixinTypes\" : [\"xyz:TestType\"]" +
-              "}" +
-        "}";
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createNode("c1", null, new String[] {"xyz:TestType"}); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testChildWithMixin() throws Exception {
+        String json = "{ " + " \"c1\" : {" + "\"jcr:mixinTypes\" : [\"xyz:TestType\"]" + "}" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createNode("c1", null, new String[] { "xyz:TestType" });
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testTwoChildren() throws Exception {
-        String json = "{ " +
-        " \"c1\" : {}," +
-        " \"c2\" : {}" +
-        "}";
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createNode("c1", null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-            allowing(creator).createNode("c2", null, null); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testTwoChildren() throws Exception {
+        String json = "{ " + " \"c1\" : {}," + " \"c2\" : {}" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createNode("c1", null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).createNode("c2", null, null);
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testChildWithProperty() throws Exception {
-        String json = "{ " +
-        " \"c1\" : {" +
-        "      \"c1p1\" : \"v1\"" +
-              "}" +
-        "}";
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-            allowing(creator).createNode("c1", null, null); inSequence(mySequence);
-            allowing(creator).createProperty("c1p1", PropertyType.UNDEFINED, "v1");
-            allowing(creator).finishNode(); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testChildWithProperty() throws Exception {
+        String json = "{ " + " \"c1\" : {" + "      \"c1p1\" : \"v1\"" + "}" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createNode("c1", null, null);
+                inSequence(mySequence);
+                allowing(creator).createProperty("c1p1", PropertyType.UNDEFINED, "v1");
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testCreateOnePrincipal() throws Exception {
-        String json = "{\"security:principals\":{ " +
-                "    \"name\" : \"username2\"," +
-                "    \"password\" : \"pwd2\"" +
-                "  }}";
+    @org.junit.Test
+    public void testCreateOnePrincipal() throws Exception {
+        String json = "{\"security:principals\":{ " + "    \"name\" : \"username2\"," + "    \"password\" : \"pwd2\""
+                + "  }}";
         final LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put("foo","bar");
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null);
-            allowing(creator).createUser("username2", "pwd2",new LinkedHashMap<String, Object>());
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        map.put("foo", "bar");
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                allowing(creator).createUser("username2", "pwd2", new LinkedHashMap<String, Object>());
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    @org.junit.Test public void testCreatePrincipals() throws Exception {
-        String json = "{\"security:principals\":[ " +
-                "  { " +
-                "    \"name\" : \"username1\"," +
-                "    \"password\" : \"pwd1\"," +
-                "    \"foo\" : \"bar\"" +
-                "  }," +
-                "  { " +
-                "    \"name\" : \"username2\"," +
-                "    \"password\" : \"pwd2\"" +
-                "  }," +
-                "  { " +
-                "    \"name\" : \"group1\"," +
-                "    \"isgroup\" : true," +
-                "    \"members\" : [\"username1\",\"username2\"]" +
-                "  }]}";
+    @org.junit.Test
+    public void testCreatePrincipals() throws Exception {
+        String json = "{\"security:principals\":[ " + "  { " + "    \"name\" : \"username1\","
+                + "    \"password\" : \"pwd1\"," + "    \"foo\" : \"bar\"" + "  }," + "  { "
+                + "    \"name\" : \"username2\"," + "    \"password\" : \"pwd2\"" + "  }," + "  { "
+                + "    \"name\" : \"group1\"," + "    \"isgroup\" : true,"
+                + "    \"members\" : [\"username1\",\"username2\"]" + "  }]}";
         final LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put("foo","bar");
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null);
-            allowing(creator).createUser("username1", "pwd1", map);
-            allowing(creator).createUser("username2", "pwd2",new LinkedHashMap<String, Object>());
-            allowing(creator).createGroup("group1", new String[]{"username1","username2"}, new LinkedHashMap<String, Object>());
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+        map.put("foo", "bar");
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                allowing(creator).createUser("username1", "pwd1", map);
+                allowing(creator).createUser("username2", "pwd2", new LinkedHashMap<String, Object>());
+                allowing(creator).createGroup("group1", new String[] { "username1", "username2" },
+                        new LinkedHashMap<String, Object>());
+
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-
-    @org.junit.Test public void testCreateAcl() throws Exception {
-    	String json = " { " +
-    			"\"security:acl\" : [ " +
-    			"  { " +
-    			"    \"principal\" : \"username1\"," +
-    			"    \"granted\" : [\"jcr:read\",\"jcr:write\"]," +
-    			"    \"denied\" : []" +
-    			"  }," +
-    			"  {" +
-    			"    \"principal\" : \"groupname1\"," +
-    			"    \"granted\" : [\"jcr:read\",\"jcr:write\"]" +
-    			"  }," +
-    			"  {" +
-    			"    \"principal\" : \"groupname2\"," +
-    			"    \"granted\" : [\"jcr:read\"]," +
-    			"    \"denied\" : [\"jcr:write\"]," +
-    			"    \"order\" : \"first\"" +
-    			"  }" +
-    			"]" +
-    			"}";
-        this.mockery.checking(new Expectations() {{
-        	allowing(creator).createNode(null, null, null); inSequence(mySequence);
-
-            allowing(creator).createAce("username1",new String[]{"jcr:read","jcr:write"},new String[]{}, null); inSequence(mySequence);
-            allowing(creator).createAce("groupname1",new String[]{"jcr:read","jcr:write"},null, null); inSequence(mySequence);
-            allowing(creator).createAce("groupname2",new String[]{"jcr:read"},new String[]{"jcr:write"}, "first"); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
-        this.parse(json);
-    }
-    
-    @org.junit.Test public void testCreateAclWithTickQuotes() throws Exception {
-        String json = " { " +
-                "'security:acl' : [ " +
-                "  { " +
-                "    'principal' : 'username1'," +
-                "    'granted' : ['jcr:read','jcr:write']," +
-                "    'denied' : []" +
-                "  }," +
-                "  {" +
-                "    'principal' : 'groupname1'," +
-                "    'granted' : ['jcr:read','jcr:write']" +
-                "  }," +
-                "  {" +
-                "    'principal' : \"\\\"'groupname2'\"," +
-                "    'granted' : ['jcr:read']," +
-                "    'denied' : ['jcr:write']," +
-                "    'order' : 'first'" +
-                "  }" +
-                "]" +
-                "}";
-        this.mockery.checking(new Expectations() {{
-            allowing(creator).createNode(null, null, null); inSequence(mySequence);
-
-            allowing(creator).createAce("username1",new String[]{"jcr:read","jcr:write"},new String[]{}, null); inSequence(mySequence);
-            allowing(creator).createAce("groupname1",new String[]{"jcr:read","jcr:write"},null, null); inSequence(mySequence);
-            allowing(creator).createAce("\"'groupname2'",new String[]{"jcr:read"},new String[]{"jcr:write"}, "first"); inSequence(mySequence);
-            allowing(creator).finishNode(); inSequence(mySequence);
-        }});
+    @org.junit.Test
+    public void testCreateAcl() throws Exception {
+        String json = " { " + "\"security:acl\" : [ " + "  { " + "    \"principal\" : \"username1\","
+                + "    \"granted\" : [\"jcr:read\",\"jcr:write\"]," + "    \"denied\" : []" + "  }," + "  {"
+                + "    \"principal\" : \"groupname1\"," + "    \"granted\" : [\"jcr:read\",\"jcr:write\"]" + "  },"
+                + "  {" + "    \"principal\" : \"groupname2\"," + "    \"granted\" : [\"jcr:read\"],"
+                + "    \"denied\" : [\"jcr:write\"]," + "    \"order\" : \"first\"" + "  }" + "]" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createAce("username1", new String[] { "jcr:read", "jcr:write" }, new String[] {},
+                        null);
+                inSequence(mySequence);
+                allowing(creator).createAce("groupname1", new String[] { "jcr:read", "jcr:write" }, null, null);
+                inSequence(mySequence);
+                allowing(creator).createAce("groupname2", new String[] { "jcr:read" }, new String[] { "jcr:write" },
+                        "first");
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
         this.parse(json);
     }
 
-    //---------- internal helper ----------------------------------------------
+    @org.junit.Test
+    public void testCreateAclWithTickQuotes() throws Exception {
+        String json = " { " + "'security:acl' : [ " + "  { " + "    'principal' : 'username1',"
+                + "    'granted' : ['jcr:read','jcr:write']," + "    'denied' : []" + "  }," + "  {"
+                + "    'principal' : 'groupname1'," + "    'granted' : ['jcr:read','jcr:write']" + "  }," + "  {"
+                + "    'principal' : \"\\\"'groupname2'\"," + "    'granted' : ['jcr:read'],"
+                + "    'denied' : ['jcr:write']," + "    'order' : 'first'" + "  }" + "]" + "}";
+        this.mockery.checking(new Expectations() {
+            {
+                allowing(creator).createNode(null, null, null);
+                inSequence(mySequence);
+                allowing(creator).createAce("username1", new String[] { "jcr:read", "jcr:write" }, new String[] {},
+                        null);
+                inSequence(mySequence);
+                allowing(creator).createAce("groupname1", new String[] { "jcr:read", "jcr:write" }, null, null);
+                inSequence(mySequence);
+                allowing(creator).createAce("\"'groupname2'", new String[] { "jcr:read" }, new String[] { "jcr:write" },
+                        "first");
+                inSequence(mySequence);
+                allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
+            }
+        });
+        this.parse(json);
+    }
+
+    // ---------- internal helper ----------------------------------------------
 
     protected void parse(String json) throws IOException, RepositoryException {
         String charSet = "ISO-8859-1";
@@ -382,13 +513,11 @@ public class JsonReaderTest {
 
     protected String toJsonArray(String[] array) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
-        for (String value : array)
-        {
+        for (String value : array) {
             builder.add(value);
         }
         StringWriter stringWriter = new StringWriter();
-        try (JsonWriter writer = Json.createWriter(stringWriter))
-        {
+        try (JsonWriter writer = Json.createWriter(stringWriter)) {
             writer.writeArray(builder.build());
         }
         return stringWriter.toString();

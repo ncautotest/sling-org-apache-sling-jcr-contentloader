@@ -47,6 +47,7 @@ public class OrderedJsonReaderTest extends JsonReaderTest {
             allowing(creator).createNode("c2", null, null); inSequence(mySequence);
             allowing(creator).finishNode(); inSequence(mySequence);
             allowing(creator).finishNode(); inSequence(mySequence);
+            allowing(creator).finish(); inSequence(mySequence);
         }});
         this.parse(json);
     }

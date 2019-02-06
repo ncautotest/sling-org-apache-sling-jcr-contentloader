@@ -44,11 +44,11 @@ public class XmlReaderTest extends TestCase {
     private MockContentCreator creator;
 
     /**
-     * 	Test the XmlReader with an XSLT transform.
+     * Test the XmlReader with an XSLT transform.
      */
     public void testXmlReader() throws Exception {
         File file = new File("src/test/resources/reader/sample.xml");
-        final URL testdata  = file.toURI().toURL();
+        final URL testdata = file.toURI().toURL();
         reader.parse(testdata, creator);
         assertEquals("Did not create expected number of nodes", 1, creator.size());
     }
@@ -69,11 +69,12 @@ public class XmlReaderTest extends TestCase {
             // Expected
         }
         assertEquals("mimeType mismatch", "application/test", file.mimeType);
-        assertEquals("lastModified mismatch", XmlReader.FileDescription.DATE_FORMAT.parse("1977-06-01T07:00:00+0100"), new Date(file.lastModified));
+        assertEquals("lastModified mismatch", XmlReader.FileDescription.DATE_FORMAT.parse("1977-06-01T07:00:00+0100"),
+                new Date(file.lastModified));
         assertEquals("Could not read file", "This is a test file.", file.content);
 
     }
-    
+
     public void testCreateFileWithNullLocation() throws Exception {
         File input = new File("src/test/resources/reader/filesample.xml");
         final FileInputStream ins = new FileInputStream(input);
@@ -93,7 +94,8 @@ public class XmlReaderTest extends TestCase {
         long originalLastModified = file.lastModified();
         assertEquals("Did not create expected number of files", 1, creator.filesCreated.size());
         MockContentCreator.FileDescription fileDescription = creator.filesCreated.get(0);
-        assertEquals("Did not pick up last modified date from file", originalLastModified, fileDescription.lastModified);
+        assertEquals("Did not pick up last modified date from file", originalLastModified,
+                fileDescription.lastModified);
 
     }
 
@@ -105,7 +107,7 @@ public class XmlReaderTest extends TestCase {
     }
 
     @SuppressWarnings("serial")
-	private static class MockContentCreator extends ArrayList<String> implements ContentCreator {
+    private static class MockContentCreator extends ArrayList<String> implements ContentCreator {
 
         public static class FileDescription {
             public InputStream data;
@@ -125,10 +127,11 @@ public class XmlReaderTest extends TestCase {
 
         public List<FileDescription> filesCreated = new ArrayList<FileDescription>();
 
-		public MockContentCreator() {
+        public MockContentCreator() {
         }
 
-        public void createNode(String name, String primaryNodeType, String[] mixinNodeTypes) throws RepositoryException {
+        public void createNode(String name, String primaryNodeType, String[] mixinNodeTypes)
+                throws RepositoryException {
             this.add(name);
         }
 
@@ -147,9 +150,10 @@ public class XmlReaderTest extends TestCase {
         public void createProperty(String name, Object[] values) throws RepositoryException {
         }
 
-        public void createFileAndResourceNode(String name, InputStream data, String mimeType, long lastModified) throws RepositoryException {
+        public void createFileAndResourceNode(String name, InputStream data, String mimeType, long lastModified)
+                throws RepositoryException {
             try {
-                this.filesCreated.add(new FileDescription( data, mimeType, lastModified));
+                this.filesCreated.add(new FileDescription(data, mimeType, lastModified));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -159,27 +163,37 @@ public class XmlReaderTest extends TestCase {
             return true;
         }
 
-		public void createAce(String principal,
-				String[] grantedPrivileges, String[] deniedPrivileges,
-				String order)
-				throws RepositoryException {
-		}
+        public void createAce(String principal, String[] grantedPrivileges, String[] deniedPrivileges, String order)
+                throws RepositoryException {
+        }
 
-		/* (non-Javadoc)
-		 * @see org.apache.sling.jcr.contentloader.ContentCreator#createAce(java.lang.String, java.lang.String[], java.lang.String[], java.lang.String, java.util.Map, java.util.Map, java.util.Set)
-		 */
-		@Override
-		public void createAce(String principal, String[] grantedPrivileges, String[] deniedPrivileges, String order,
-				Map<String, Value> restrictions, Map<String, Value[]> mvRestrictions,
-				Set<String> removedRestrictionNames) throws RepositoryException {
-		}
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.apache.sling.jcr.contentloader.ContentCreator#createAce(java.lang.String,
+         * java.lang.String[], java.lang.String[], java.lang.String, java.util.Map,
+         * java.util.Map, java.util.Set)
+         */
+        @Override
+        public void createAce(String principal, String[] grantedPrivileges, String[] deniedPrivileges, String order,
+                Map<String, Value> restrictions, Map<String, Value[]> mvRestrictions,
+                Set<String> removedRestrictionNames) throws RepositoryException {
+        }
 
-		public void createGroup(String name, String[] members,
-				Map<String, Object> extraProperties) throws RepositoryException {
-		}
+        public void createGroup(String name, String[] members, Map<String, Object> extraProperties)
+                throws RepositoryException {
+        }
 
-		public void createUser(String name, String password,
-				Map<String, Object> extraProperties) throws RepositoryException {
-		}
+        public void createUser(String name, String password, Map<String, Object> extraProperties)
+                throws RepositoryException {
+        }
+
+        @Override
+        public void finish() throws RepositoryException {
+            // TODO Auto-generated method stub
+            
+        }
+
     }
 }

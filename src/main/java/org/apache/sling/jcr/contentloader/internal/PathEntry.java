@@ -52,6 +52,12 @@ public class PathEntry extends ImportOptions {
      * should be overwritten or just initially added.
      */
     public static final String MERGE_PROPERTIES_DIRECTIVE = "mergeProperties";
+    
+    /**
+     * The overwriteProperties directive specifying if content properties 
+     * should be overwritten or just initially added.
+     */
+    public static final String MERGE_NODES_DIRECTIVE = "merge";
 
     /** The uninstall directive specifying if content should be uninstalled. */
     public static final String UNINSTALL_DIRECTIVE = "uninstall";
@@ -88,6 +94,8 @@ public class PathEntry extends ImportOptions {
     public static final String IGNORE_CONTENT_READERS_DIRECTIVE = "ignoreImportProviders";
 
     private final boolean propertyMerge;
+    
+    private final boolean nodeMerge;
 
     /** The path for the initial content. */
     private final String path;
@@ -155,6 +163,14 @@ public class PathEntry extends ImportOptions {
             this.propertyMerge = Boolean.valueOf(mergeProperties);
         } else {
             this.propertyMerge = false;
+        }
+        
+        // merge directive
+        final String mergeNodes = entry.getDirectiveValue(MERGE_NODES_DIRECTIVE);
+        if (mergeNodes != null) {
+            this.nodeMerge = Boolean.valueOf(mergeProperties);
+        } else {
+            this.nodeMerge = false;
         }
         
         // overwrite directive
@@ -243,7 +259,7 @@ public class PathEntry extends ImportOptions {
     /* (non-Javadoc)
      * @see org.apache.sling.jcr.contentloader.ImportOptions#isPropertyOverwrite()
      */
-    @Override
+
     public boolean isPropertyOverwrite() {
         return this.overwriteProperties;
     }
@@ -262,7 +278,7 @@ public class PathEntry extends ImportOptions {
     /* (non-Javadoc)
      * @see org.apache.sling.jcr.contentloader.ImportOptions#isAutoCheckout()
      */
-    @Override
+
     public boolean isAutoCheckout() {
         return this.autoCheckout;
     }
@@ -285,8 +301,13 @@ public class PathEntry extends ImportOptions {
         return workspace;
     }
 
-    @Override
+
     public boolean isPropertyMerge() {
         return this.propertyMerge;
+    }
+
+
+    public boolean isMerge() {
+        return this.nodeMerge;
     }
 }

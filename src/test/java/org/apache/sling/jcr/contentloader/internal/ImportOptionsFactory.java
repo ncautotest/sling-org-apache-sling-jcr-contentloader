@@ -16,78 +16,62 @@
  */
 package org.apache.sling.jcr.contentloader.internal;
 
-import org.apache.sling.jcr.contentloader.ContentReader;
 import org.apache.sling.jcr.contentloader.ImportOptions;
 
-import java.util.Map;
-
 public final class ImportOptionsFactory {
-    public static ImportOptions createImportOptions(final boolean isOverwrite, final boolean isPropertyOverwrite,
-            final boolean isAutoCheckout, final boolean isCheckin, final boolean isIgnoredImportProvider, final boolean isPropertyMerge){
+    
+    public static final int NO_OPTIONS = 0;
+    
+    public static final int OVERWRITE_NODE = 0x1;
+    
+    public static final int OVERWRITE_PROPERTIES = 0x1 << 1;
+    
+    public static final int SYNCH_PROPERTIES = 0x1 << 2;
+    
+    public static final int SYNCH_NODES = 0x1 << 3;
+    
+    public static final int AUTO_CHECKOUT = 0x1 << 4;
+    
+    public static final int IGNORE_IMPORT_PROVIDER = 0x1 << 5;
+    
+    public static final int CHECK_IN = 0x1 << 6;
+    
+    
+    public static ImportOptions createImportOptions(int options){
         return new ImportOptions() {
             @Override
             public boolean isOverwrite() {
-                return isOverwrite;
+                return (options & OVERWRITE_NODE) > NO_OPTIONS;
             }
 
             @Override
             public boolean isPropertyOverwrite() {
-                return isPropertyOverwrite;
+                return (options & OVERWRITE_PROPERTIES) > NO_OPTIONS;
             }
 
             @Override
             public boolean isAutoCheckout() {
-                return isAutoCheckout;
+                return (options & AUTO_CHECKOUT) > NO_OPTIONS;
             }
 
             @Override
             public boolean isCheckin() {
-                return isCheckin;
+                return (options & CHECK_IN) > NO_OPTIONS;
             }
 
             @Override
             public boolean isIgnoredImportProvider(String extension) {
-                return isIgnoredImportProvider;
+                return (options & IGNORE_IMPORT_PROVIDER) > NO_OPTIONS;
             }
 
             @Override
             public boolean isPropertyMerge() {
-                return isPropertyMerge;
-            }
-        };
-    }
-
-    public static ImportOptions createImportOptsWithReaders(final boolean isOverwrite, final boolean isPropertyOverwrite,
-            final boolean isAutoCheckout, final boolean isCheckin, final boolean isPropertyMerge, final Map<String, ContentReader> defaultContentReaders){
-        return new ImportOptions() {
-            @Override
-            public boolean isOverwrite() {
-                return isOverwrite;
+                return (options & SYNCH_PROPERTIES) > NO_OPTIONS;
             }
 
             @Override
-            public boolean isPropertyOverwrite() {
-                return isPropertyOverwrite;
-            }
-
-            @Override
-            public boolean isAutoCheckout() {
-                return isAutoCheckout;
-            }
-
-            @Override
-            public boolean isCheckin() {
-                return isCheckin;
-            }
-
-            @Override
-            public boolean isIgnoredImportProvider(String extension) {
-                return defaultContentReaders.containsKey(extension);
-            }
-
-            @Override
-            public boolean isPropertyMerge() {
-                return isPropertyMerge;
+            public boolean isMerge() {
+                return (options & SYNCH_NODES) > NO_OPTIONS;
             }
         };
     }

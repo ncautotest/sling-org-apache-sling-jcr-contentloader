@@ -59,6 +59,14 @@ public interface ContentCreator {
      */
     void finishNode() throws RepositoryException;
 
+    
+    /**
+     * Indicates that the import is finished
+     *
+     * @throws RepositoryException
+     */
+    void finish() throws RepositoryException;
+    
     /**
      * Create a new property to the current node.
      *
