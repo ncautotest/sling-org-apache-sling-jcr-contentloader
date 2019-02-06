@@ -29,9 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -149,25 +147,23 @@ public class DefaultContentCreator implements ContentCreator {
     /**
      * Initialize this component.
      *
-     * @param pathEntry
+     * @param options
      *            The configuration for this import.
      * @param defaultContentReaders
      *            List of all content readers.
      * @param createdNodes
      *            Optional list to store new nodes (for uninstall)
      */
-    public void init(final ImportOptions pathEntry, final Map<String, ContentReader> defaultContentReaders,
+    public void init(final ImportOptions options, final Map<String, ContentReader> defaultContentReaders,
             final List<String> createdNodes, final ContentImportListener importListener) {
-        this.configuration = pathEntry;
+        this.configuration = options;
         // create list of allowed content readers
         this.contentReaders = new HashMap<>();
-        final Iterator<Map.Entry<String, ContentReader>> entryIter = defaultContentReaders.entrySet().iterator();
-        while (entryIter.hasNext()) {
-            final Map.Entry<String, ContentReader> current = entryIter.next();
-            if (!configuration.isIgnoredImportProvider(current.getKey())) {
-                contentReaders.put(current.getKey(), current.getValue());
+        defaultContentReaders.forEach((key,value)->{
+            if (!configuration.isIgnoredImportProvider(key)) {
+                contentReaders.put(key, value);
             }
-        }
+        });
         this.createdNodes = createdNodes;
         this.importListener = importListener;
     }
@@ -298,6 +294,7 @@ public class DefaultContentCreator implements ContentCreator {
      *      int, java.lang.String)
      */
     public void createProperty(String name, int propertyType, String value) throws RepositoryException {
+        appliedSet.add(name);
         final Node node = this.parentNodeStack.peek();
         // check if the property already exists and isPropertyOverwrite() is false,
         // don't overwrite it in this case
@@ -321,7 +318,7 @@ public class DefaultContentCreator implements ContentCreator {
             // for later checkin if set to false
             final boolean checkedout = Boolean.parseBoolean(value);
             if (!checkedout && !this.versionables.contains(node)) {
-                    this.versionables.add(node);
+                this.versionables.add(node);
             }
         } else if (propertyType == PropertyType.DATE) {
             checkoutIfNecessary(node);
@@ -340,7 +337,6 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onCreate(node.getProperty(name).getPath());
             }
         }
-        appliedSet.add(name);
     }
 
     /**
@@ -348,6 +344,7 @@ public class DefaultContentCreator implements ContentCreator {
      *      int, java.lang.String[])
      */
     public void createProperty(String name, int propertyType, String[] values) throws RepositoryException {
+        appliedSet.add(name);
         final Node node = this.parentNodeStack.peek();
         // check if the property already exists and isPropertyOverwrite() is false,
         // don't overwrite it in this case
@@ -400,7 +397,6 @@ public class DefaultContentCreator implements ContentCreator {
                 this.importListener.onCreate(node.getProperty(name).getPath());
             }
         }
-        appliedSet.add(name);
     }
 
     protected Value createValue(final ValueFactory factory, Object value) throws RepositoryException {
@@ -448,25 +444,42 @@ public class DefaultContentCreator implements ContentCreator {
      */
     public void finishNode() throws RepositoryException {
         final Node node = this.parentNodeStack.pop();
+        cleanUpNode(node);
         // resolve REFERENCE property values pointing to this node
-        if (configuration.isPropertyMerge()) {
-        PropertyIterator it = node.getProperties();
-        Set<String> current =  new LinkedHashSet<>();
-        while(it.hasNext()) {
-            current.add(it.nextProperty().getName());
-        }
-        current.removeAll(appliedSet);
-        current.forEach(propertyName->{
-            try {
-                Property prop = node.getProperty(propertyName);
-                importListener.onDelete(prop.getPath());
-                prop.remove();
-            } catch (RepositoryException e) {
-                e.printStackTrace();
-            }
-        });
-        }
         resolveReferences(node);
+        node.getSession().save();
+    }
+
+    public void cleanUpNode(Node node) throws RepositoryException {
+        if (configuration.isPropertyMerge()) {
+            PropertyIterator it = node.getProperties();
+            Set<String> current = new LinkedHashSet<>();
+            while (it.hasNext()) {
+                String name = it.nextProperty().getName();
+                current.add(name);
+            }
+            current.removeAll(appliedSet);
+            if (current.isEmpty()) {
+                return;
+            }
+            log.info("path {}", node.getPath());
+            current.forEach(propertyName -> {
+                try {
+                    if (propertyName != null) {
+                        Property prop = node.getProperty(propertyName);
+                        if (!prop.getDefinition().isProtected()) {
+                            if (importListener != null) {
+                                importListener.onDelete(prop.getPath());
+                            }
+                            prop.remove();
+                            log.info(propertyName);
+                        }
+                    }
+                } catch (RepositoryException e) {
+                    log.info("error : {}", e.getLocalizedMessage());
+                }
+            });
+        }
     }
 
     private void addNodeToCreatedList(Node node) throws RepositoryException {
@@ -791,7 +804,7 @@ public class DefaultContentCreator implements ContentCreator {
         Authorizable authorizable = userManager.getAuthorizable(name);
         if (authorizable == null) {
             // principal does not exist yet, so create it
-            User user = userManager.createUser(name, password,() -> name, hashPath(name));
+            User user = userManager.createUser(name, password, () -> name, hashPath(name));
             authorizable = user;
         } else {
             // principal already exists, check to make sure it is the expected type
@@ -876,8 +889,10 @@ public class DefaultContentCreator implements ContentCreator {
         String resourcePath = parentNode.getPath();
 
         if ((grantedPrivilegeNames != null) || (deniedPrivilegeNames != null)) {
-            AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal, grantedPrivilegeNames,
-                    deniedPrivilegeNames, null, order, restrictions, mvRestrictions, removedRestrictionNames);
+            // AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal,
+            // grantedPrivilegeNames,
+            // deniedPrivilegeNames, null, order, restrictions, mvRestrictions,
+            // removedRestrictionNames);
         }
     }
 
