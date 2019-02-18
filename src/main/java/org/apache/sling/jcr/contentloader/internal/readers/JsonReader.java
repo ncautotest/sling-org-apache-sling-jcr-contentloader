@@ -173,6 +173,7 @@ public class JsonReader implements ContentReader {
             JsonObject json = Json.createReaderFactory(config)
                     .createReader(new StringReader(tickToDoubleQuote(jsonString))).readObject();
             this.createNode(null, json, contentCreator);
+            contentCreator.finish();
         } catch (JsonException je) {
             throw (IOException) new IOException(je.getMessage()).initCause(je);
         }
@@ -230,7 +231,7 @@ public class JsonReader implements ContentReader {
         if (value instanceof JsonArray) {
             // multivalue
             final JsonArray array = (JsonArray) value;
-            if (array.size() > 0) {
+            if (!array.isEmpty()) {
                 final String values[] = new String[array.size()];
                 for (int i = 0; i < values.length; i++) {
                     values[i] = unbox(array.get(i)).toString();

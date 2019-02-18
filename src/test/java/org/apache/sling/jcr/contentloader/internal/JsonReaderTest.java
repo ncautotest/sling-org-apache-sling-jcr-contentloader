@@ -70,6 +70,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse("");
@@ -82,6 +84,8 @@ public class JsonReaderTest {
                 allowing(creator).createNode(null, null, null);
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -96,6 +100,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         String json = "     {  }     ";
@@ -109,6 +115,8 @@ public class JsonReaderTest {
                 allowing(creator).createNode(null, null, null);
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -127,6 +135,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -142,6 +152,8 @@ public class JsonReaderTest {
                 allowing(creator).createNode(null, null, mixins);
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -159,6 +171,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -175,6 +189,8 @@ public class JsonReaderTest {
                 allowing(creator).createProperty("property", PropertyType.UNDEFINED, "");
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -194,6 +210,8 @@ public class JsonReaderTest {
 
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -211,6 +229,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
 
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -231,6 +251,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -247,6 +269,8 @@ public class JsonReaderTest {
                 allowing(creator).createProperty("p1", PropertyType.UNDEFINED, new String[] { "v1" });
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -266,6 +290,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -282,6 +308,8 @@ public class JsonReaderTest {
                 allowing(creator).createProperty("p1", PropertyType.STRING, new String[0]);
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -301,6 +329,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -318,6 +348,8 @@ public class JsonReaderTest {
                 allowing(creator).finishNode();
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -341,6 +373,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -360,6 +394,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -376,6 +412,8 @@ public class JsonReaderTest {
                 allowing(creator).createNode(null, null, null);
                 allowing(creator).createUser("username2", "pwd2", new LinkedHashMap<String, Object>());
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -400,6 +438,8 @@ public class JsonReaderTest {
                         new LinkedHashMap<String, Object>());
 
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });
@@ -427,6 +467,8 @@ public class JsonReaderTest {
                 inSequence(mySequence);
                 allowing(creator).finishNode();
                 inSequence(mySequence);
+                allowing(creator).finish();
+                inSequence(mySequence);
             }
         });
         this.parse(json);
@@ -452,6 +494,8 @@ public class JsonReaderTest {
                         "first");
                 inSequence(mySequence);
                 allowing(creator).finishNode();
+                inSequence(mySequence);
+                allowing(creator).finish();
                 inSequence(mySequence);
             }
         });

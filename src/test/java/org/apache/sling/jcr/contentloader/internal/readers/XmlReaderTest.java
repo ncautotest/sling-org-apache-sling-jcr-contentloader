@@ -189,5 +189,11 @@ public class XmlReaderTest extends TestCase {
                 throws RepositoryException {
         }
 
+        @Override
+        public void finish() throws RepositoryException {
+            // TODO Auto-generated method stub
+            
+        }
+
     }
 }

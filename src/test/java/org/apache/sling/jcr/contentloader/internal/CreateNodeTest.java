@@ -18,6 +18,7 @@ package org.apache.sling.jcr.contentloader.internal;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.apache.sling.jcr.contentloader.internal.ImportOptionsFactory.*;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -51,7 +52,7 @@ public class CreateNodeTest {
         final SlingRepository repo = RepositoryProvider.instance().getRepository();
         session = repo.loginAdministrative(null);
         contentCreator = new DefaultContentCreator(null);
-        contentCreator.init(ImportOptionsFactory.createImportOptions(true, true, true, false, false, false),
+        contentCreator.init(createImportOptions(OVERWRITE_NODE | OVERWRITE_PROPERTIES | AUTO_CHECKOUT),
                 new HashMap<String, ContentReader>(), null, null);
         testRoot = session.getRootNode().addNode(getClass().getSimpleName()).addNode(uniqueId());
     }

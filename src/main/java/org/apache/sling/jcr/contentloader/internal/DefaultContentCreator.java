@@ -26,6 +26,7 @@ import java.security.Principal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
@@ -35,11 +36,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
@@ -122,6 +127,7 @@ public class DefaultContentCreator implements ContentCreator {
     private ContentImportListener importListener;
 
     private Set<String> appliedSet = new LinkedHashSet<>();
+    private Set<String> importedNodes = new LinkedHashSet<>();
 
     /**
      * A one time use seed to randomize the user location.
@@ -275,7 +281,9 @@ public class DefaultContentCreator implements ContentCreator {
                     }
                 }
             }
-
+            
+            importedNodes.add(node.getPath());
+            
             // check if node is versionable
             final boolean addToVersionables = this.configuration.isCheckin() && node.isNodeType("mix:versionable");
             if (addToVersionables) {
@@ -450,35 +458,23 @@ public class DefaultContentCreator implements ContentCreator {
         node.getSession().save();
     }
 
-    public void cleanUpNode(Node node) throws RepositoryException {
+    private void cleanUpNode(Node node) throws RepositoryException {
         if (configuration.isPropertyMerge()) {
             PropertyIterator it = node.getProperties();
-            Set<String> current = new LinkedHashSet<>();
             while (it.hasNext()) {
-                String name = it.nextProperty().getName();
-                current.add(name);
-            }
-            current.removeAll(appliedSet);
-            if (current.isEmpty()) {
-                return;
-            }
-            log.info("path {}", node.getPath());
-            current.forEach(propertyName -> {
-                try {
-                    if (propertyName != null) {
-                        Property prop = node.getProperty(propertyName);
-                        if (!prop.getDefinition().isProtected()) {
-                            if (importListener != null) {
-                                importListener.onDelete(prop.getPath());
-                            }
-                            prop.remove();
-                            log.info(propertyName);
-                        }
-                    }
-                } catch (RepositoryException e) {
-                    log.info("error : {}", e.getLocalizedMessage());
+                Property prop= it.nextProperty();
+                String propertyName = prop.getName();
+                if (appliedSet.contains(propertyName)) {
+                    continue;
                 }
-            });
+                if (!prop.getDefinition().isProtected()) {
+                    if (importListener != null) {
+                        importListener.onDelete(prop.getPath());
+                    }
+                    prop.remove();
+                    log.info(propertyName);
+                }
+            }
         }
     }
 
@@ -829,12 +825,10 @@ public class DefaultContentCreator implements ContentCreator {
      */
     protected String hashPath(String item) throws RepositoryException {
         try {
-            String hash = digest("sha1", (INSTANCE_SEED + item).getBytes("UTF-8"));
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < STORAGE_LEVELS; i++) {
-                sb.append(hash, i * 2, (i * 2) + 2).append("/");
-            }
-            return sb.toString();
+            final String hash = digest("sha1", (INSTANCE_SEED + item).getBytes("UTF-8"));
+            return IntStream.range(0, STORAGE_LEVELS)
+                    .mapToObj(i -> hash.substring(i * 2, (i * 2) + 2))
+                    .collect(Collectors.joining("/", "", "/"));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             throw new RepositoryException("Unable to hash the path.", e);
         }
@@ -889,6 +883,7 @@ public class DefaultContentCreator implements ContentCreator {
         String resourcePath = parentNode.getPath();
 
         if ((grantedPrivilegeNames != null) || (deniedPrivilegeNames != null)) {
+            // TODO: Disabled in SAS version due to incompatible dependency
             // AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal,
             // grantedPrivilegeNames,
             // deniedPrivilegeNames, null, order, restrictions, mvRestrictions,
@@ -942,21 +937,16 @@ public class DefaultContentCreator implements ContentCreator {
     protected Node findVersionableAncestor(Node node) throws RepositoryException {
         if (node == null) {
             return null;
-        } else if (isVersionable(node)) {
-            return node;
-        } else {
-            try {
-                node = node.getParent();
-                return findVersionableAncestor(node);
-            } catch (ItemNotFoundException e) {
-                // top-level
-                return null;
-            }
         }
-    }
-
-    protected boolean isVersionable(Node node) throws RepositoryException {
-        return node.isNodeType("mix:versionable");
+        if (node.isNodeType("mix:versionable")) {
+            return node;
+        } 
+        try {
+            return findVersionableAncestor(node.getParent());
+        } catch (ItemNotFoundException e) {
+            // top-level
+            return null;
+        }
     }
 
     /**
@@ -973,6 +963,48 @@ public class DefaultContentCreator implements ContentCreator {
                 }
             }
         }
+    }
+
+    @Override
+    public void finish() throws RepositoryException {
+        if (this.configuration.isMerge()) {
+            Session session = this.createdRootNode.getSession();
+            importedNodes.stream().flatMap(n -> {
+                Set<String> iterable = getPeers(n,session);
+                return StreamSupport.stream(iterable.spliterator(), false);
+            }).filter(path -> !importedNodes.contains(path)).forEach(path -> removeNode(path,session));
+        }
+    }
+    
+    private Set<String> getPeers(String path,Session session) {
+            try {
+                log.info("finding peers for {}", path);
+                NodeIterator it = session.getNode(path).getParent().getNodes();
+                Set<String> peers = new LinkedHashSet<>();
+                while (it.hasNext()) {
+                    String child = it.nextNode().getPath();
+                    if (!child.equals(path)) {
+                        peers.add(child);
+                    }
+                }
+                return peers;
+            } catch (RepositoryException e) {
+                return Collections.emptySet();
+            }
+    }
+    
+    private void removeNode(String item, Session session) {
+        try {
+            if (this.importListener != null) {
+                this.importListener.onDelete(item);
+            }
+            log.info("removing {}", item);
+            session.removeItem(item);
+            session.save();
+        } catch (RepositoryException e) {
+            log.warn("unable to remove node {}", item);
+        }
+        
     }
 
 }
