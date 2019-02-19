@@ -883,11 +883,10 @@ public class DefaultContentCreator implements ContentCreator {
         String resourcePath = parentNode.getPath();
 
         if ((grantedPrivilegeNames != null) || (deniedPrivilegeNames != null)) {
-            // TODO: Disabled in SAS version due to incompatible dependency
-            // AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal,
-            // grantedPrivilegeNames,
-            // deniedPrivilegeNames, null, order, restrictions, mvRestrictions,
-            // removedRestrictionNames);
+             AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal,
+             grantedPrivilegeNames,
+             deniedPrivilegeNames, null, order, restrictions, mvRestrictions,
+             removedRestrictionNames);
         }
     }
 

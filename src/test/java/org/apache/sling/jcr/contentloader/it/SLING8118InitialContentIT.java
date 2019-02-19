@@ -100,6 +100,7 @@ public class SLING8118InitialContentIT extends ContentloaderTestSupport {
         assertEquals("sling8118_user", firstMember.getID());
     }
 
+    @Test
     public void aceWithRestrictionsCreated() throws RepositoryException {
         final String folderPath = contentRootPath + "/SLING-8118";
         assertTrue("Expecting test folder to exist", session.itemExists(folderPath));
