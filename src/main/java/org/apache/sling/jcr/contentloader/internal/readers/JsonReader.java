@@ -275,6 +275,9 @@ public class JsonReader implements ContentReader {
     }
 
     private int getType(String name, Object object) {
+        if (object == null) {
+            return PropertyType.UNDEFINED;
+        }
         if (object instanceof Double || object instanceof Float) {
             return PropertyType.DOUBLE;
         } else if (object instanceof Number) {

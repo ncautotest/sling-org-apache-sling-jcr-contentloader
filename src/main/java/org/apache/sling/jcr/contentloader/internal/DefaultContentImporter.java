@@ -81,7 +81,7 @@ public class DefaultContentImporter extends BaseImportLoader implements ContentH
      */
     @Override
     public void importContent(Node parent, String filename, InputStream contentStream, ImportOptions importOptions, ContentImportListener importListener) throws RepositoryException, IOException {
-
+        logger.debug("initiate import of file name {}",filename);
         // special treatment for system view imports
         if (filename.endsWith(EXT_JCR_XML)) {
             importJcrXml(parent, filename, contentStream, importOptions, importListener);
@@ -100,7 +100,7 @@ public class DefaultContentImporter extends BaseImportLoader implements ContentH
 
     @Override
     public void importContent(final Node parent, final String name, final String contentType, final InputStream contentStream, final ImportOptions importOptions, final ContentImportListener importListener) throws RepositoryException, IOException {
-
+        logger.debug("initiate import {} of type {}",name, contentType);
         // special treatment for system view imports
         if (ContentTypeUtil.TYPE_JCR_XML.equalsIgnoreCase(contentType)) {
             importJcrXml(parent, name, contentStream, importOptions, importListener);
@@ -116,6 +116,7 @@ public class DefaultContentImporter extends BaseImportLoader implements ContentH
     }
 
     private void importContent(final DefaultContentCreator contentCreator, final ContentReader contentReader, final Node parent, final String name, final InputStream contentStream, final ImportOptions importOptions, final ContentImportListener importListener) throws RepositoryException, IOException {
+        logger.debug("initiate import of {}",name);
         List<String> createdPaths = new ArrayList<>();
         contentCreator.init(importOptions, getContentReaders(), createdPaths, importListener);
         contentCreator.prepareParsing(parent, name);

@@ -969,6 +969,7 @@ public class DefaultContentCreator implements ContentCreator {
     public void finish() throws RepositoryException {
         if (this.configuration.isMerge()) {
             Session session = this.createdRootNode.getSession();
+            log.debug("finishing nodes");
             importedNodes.stream().flatMap(n -> {
                 Set<String> iterable = getPeers(n,session);
                 return StreamSupport.stream(iterable.spliterator(), false);
@@ -983,9 +984,8 @@ public class DefaultContentCreator implements ContentCreator {
                 Set<String> peers = new LinkedHashSet<>();
                 while (it.hasNext()) {
                     String child = it.nextNode().getPath();
-                    if (!child.equals(path)) {
-                        peers.add(child);
-                    }
+                    log.debug(child);
+                    peers.add(child);
                 }
                 return peers;
             } catch (RepositoryException e) {
