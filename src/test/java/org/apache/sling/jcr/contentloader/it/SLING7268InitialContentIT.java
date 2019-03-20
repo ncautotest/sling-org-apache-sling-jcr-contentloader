@@ -98,11 +98,11 @@ public class SLING7268InitialContentIT extends ContentloaderTestSupport {
         assertEquals("sling7268_user", firstMember.getID());
     }
 
+
     @Test
     public void aceCreated() throws RepositoryException {
         final String folderPath = contentRootPath + "/SLING-7268";
         assertTrue("Expecting test folder to exist", session.itemExists(folderPath));
-
         AccessControlManager accessControlManager = AccessControlUtil.getAccessControlManager(session);
         AccessControlPolicy[] policies = accessControlManager.getPolicies(folderPath);
         List<AccessControlEntry> allEntries = new ArrayList<AccessControlEntry>();

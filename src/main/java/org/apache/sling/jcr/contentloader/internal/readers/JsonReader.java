@@ -241,12 +241,12 @@ public class JsonReader implements ContentReader {
             } else {
                 contentCreator.createProperty(getName(name), PropertyType.STRING, new String[0]);
             }
-
         } else if (value instanceof JsonValue) {
             // single value
             value = unbox(value);
-            final int propertyType = getType(name, value);
-            contentCreator.createProperty(getName(name), propertyType, value.toString());
+            if (value != null) {
+                contentCreator.createProperty(getName(name), getType(name, value), value.toString());
+            }
         }
     }
 
@@ -275,6 +275,9 @@ public class JsonReader implements ContentReader {
     }
 
     private int getType(String name, Object object) {
+        if (object == null) {
+            return PropertyType.STRING;
+        }
         if (object instanceof Double || object instanceof Float) {
             return PropertyType.DOUBLE;
         } else if (object instanceof Number) {
