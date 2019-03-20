@@ -40,7 +40,9 @@ public abstract class ImportOptions {
      * deleted.
      * @return true to overwrite nodes, false otherwise
      */
-    public abstract boolean isMerge();
+    public boolean isMerge() {
+        return false;
+    }
 
 	/**
 	 * Specifies whether imported properties should overwrite existing properties.
@@ -54,7 +56,9 @@ public abstract class ImportOptions {
      * will be removed
      * @return true to overwrite nodes, false otherwise
      */
-    public abstract boolean isPropertyMerge();
+    public boolean isPropertyMerge() {
+        return false;
+    }
     
 	/**
 	 * Specifies whether versionable nodes is automatically checked in at the
