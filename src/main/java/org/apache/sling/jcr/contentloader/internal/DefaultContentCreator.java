@@ -472,7 +472,7 @@ public class DefaultContentCreator implements ContentCreator {
                         importListener.onDelete(prop.getPath());
                     }
                     prop.remove();
-                    log.info(propertyName);
+                    log.trace(propertyName);
                 }
             }
         }
@@ -686,7 +686,7 @@ public class DefaultContentCreator implements ContentCreator {
             if (!this.configuration.isOverwrite() && nodeLastModified >= lastModified) {
                 return;
             }
-            log.info("Updating {} lastModified:{} New Content LastModified:{}", parentNode.getNode(name).getPath(),
+            log.debug("Updating {} lastModified:{} New Content LastModified:{}", parentNode.getNode(name).getPath(),
                     new Date(nodeLastModified), new Date(lastModified));
         } else {
             this.createNode(name, "nt:file", null);
@@ -697,7 +697,7 @@ public class DefaultContentCreator implements ContentCreator {
         if (mimeType == null) {
             mimeType = contentHelper.getMimeType(name);
             if (mimeType == null) {
-                log.info("createFile: Cannot find content type for {}, using {}", name, DEFAULT_CONTENT_TYPE);
+                log.debug("createFile: Cannot find content type for {}, using {}", name, DEFAULT_CONTENT_TYPE);
                 mimeType = DEFAULT_CONTENT_TYPE;
             }
         }
@@ -883,10 +883,8 @@ public class DefaultContentCreator implements ContentCreator {
         String resourcePath = parentNode.getPath();
 
         if ((grantedPrivilegeNames != null) || (deniedPrivilegeNames != null)) {
-             AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal,
-             grantedPrivilegeNames,
-             deniedPrivilegeNames, null, order, restrictions, mvRestrictions,
-             removedRestrictionNames);
+            AccessControlUtil.replaceAccessControlEntry(session, resourcePath, principal, grantedPrivilegeNames, deniedPrivilegeNames, null, order, 
+            		restrictions, mvRestrictions, removedRestrictionNames);
         }
     }
 
@@ -972,12 +970,16 @@ public class DefaultContentCreator implements ContentCreator {
                 Set<String> iterable = getPeers(n,session);
                 return StreamSupport.stream(iterable.spliterator(), false);
             }).filter(path -> !importedNodes.contains(path)).forEach(path -> removeNode(path,session));
+            importedNodes.stream().flatMap(n -> {
+                Set<String> iterable = getChildren(n,session);
+                return StreamSupport.stream(iterable.spliterator(), false);
+            }).filter(path -> !importedNodes.contains(path)).forEach(path -> removeNode(path,session));
         }
     }
     
     private Set<String> getPeers(String path,Session session) {
             try {
-                log.info("finding peers for {}", path);
+                log.debug("finding peers for {}", path);
                 NodeIterator it = session.getNode(path).getParent().getNodes();
                 Set<String> peers = new LinkedHashSet<>();
                 while (it.hasNext()) {
@@ -992,12 +994,27 @@ public class DefaultContentCreator implements ContentCreator {
             }
     }
     
+    private Set<String> getChildren(String path,Session session) {
+        try {
+            log.debug("finding children for {}", path);
+            NodeIterator it = session.getNode(path).getNodes();
+            Set<String> peers = new LinkedHashSet<>();
+            while (it.hasNext()) {
+                String child = it.nextNode().getPath();
+                peers.add(child);
+            }
+            return peers;
+        } catch (RepositoryException e) {
+            return Collections.emptySet();
+        }
+}
+    
     private void removeNode(String item, Session session) {
         try {
             if (this.importListener != null) {
                 this.importListener.onDelete(item);
             }
-            log.info("removing {}", item);
+            log.debug("removing {}", item);
             session.removeItem(item);
             session.save();
         } catch (RepositoryException e) {
